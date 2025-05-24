@@ -57,5 +57,4 @@ public interface FlightCrewMemberFlightAssignmentRepository extends AbstractRepo
 
 	@Query("select count(a) > 0 from FlightAssignment a where a.member.id = :memberId and a.leg.id = :legId and a.id != :assignmentId and a.draftMode = false")
 	boolean existsAssignmentByMemberAndLeg(int memberId, int legId, int assignmentId);
-
 }
