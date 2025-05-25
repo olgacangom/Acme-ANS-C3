@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import acme.client.components.validation.AbstractValidator;
 import acme.client.components.validation.Validator;
 import acme.entities.claim.ClaimRepository;
-import acme.entities.claim.Indicator;
 import acme.entities.trackingLog.TrackingLog;
 import acme.entities.trackingLog.TrackingLogRepository;
 
@@ -61,15 +60,10 @@ public class TrackingLogValidator extends AbstractValidator<ValidTrackingLog, Tr
 
 			// Validate that there are at most 2 trackingLogs with 100% resolution
 			{
-				boolean trackingLogsCompleted = true;
+				boolean trackingLogsCompleted;
+				Collection<TrackingLog> trackingLogs = this.claimRepository.findCompletedTrackingLogsByClaimId(trackingLog.getClaim().getId());
 
-				if (trackingLog.getResolutionPercentage() != null) {
-					Collection<TrackingLog> trackingLogs = this.claimRepository.findTrackingLogsOfClaimByResolutionPercentage(trackingLog.getClaim().getId(), trackingLog.getResolutionPercentage());
-					if (trackingLog.getResolutionPercentage() == 100)
-						trackingLogsCompleted = trackingLogs.size() <= 1;
-					else
-						trackingLogsCompleted = trackingLogs.size() <= 0;
-				}
+				trackingLogsCompleted = trackingLogs.size() <= 2;
 
 				super.state(context, trackingLogsCompleted, "indicator", "acme.validation.trackingLog.trackingLogsCompleted.message");
 			}
@@ -113,17 +107,6 @@ public class TrackingLogValidator extends AbstractValidator<ValidTrackingLog, Tr
 
 					super.state(context, correctPercentage, "resolutionPercentage", "acme.validation.trackingLog.resolutionPercentage.message");
 				}
-			}
-
-			{
-				boolean indicatorPending = true;
-
-				if (trackingLog.getResolutionPercentage() == 100)
-					indicatorPending = !trackingLog.getIndicator().equals(Indicator.PENDING);
-				else
-					indicatorPending = trackingLog.getIndicator().equals(Indicator.PENDING);
-
-				super.state(context, indicatorPending, "indicator", "acme.validation.trackingLog.acceptedPending.message");
 			}
 
 		}

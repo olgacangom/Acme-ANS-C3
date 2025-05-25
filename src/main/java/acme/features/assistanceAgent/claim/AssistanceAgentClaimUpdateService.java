@@ -30,8 +30,8 @@ public class AssistanceAgentClaimUpdateService extends AbstractGuiService<Assist
 		boolean status;
 		int claimId = super.getRequest().getData("id", int.class);
 		Claim claim = this.repository.findClaimById(claimId);
-
 		status = super.getRequest().getPrincipal().hasRealmOfType(AssistanceAgent.class) && claim != null && super.getRequest().getPrincipal().getActiveRealm().getId() == claim.getAssistanceAgent().getId();
+
 		super.getResponse().setAuthorised(status);
 	}
 
@@ -57,20 +57,7 @@ public class AssistanceAgentClaimUpdateService extends AbstractGuiService<Assist
 
 	@Override
 	public void validate(final Claim claim) {
-		int legId;
-		Leg leg;
-
-		if (claim.getIndicator() != Indicator.PENDING)
-			leg = this.repository.findLegByClaimId(claim.getId());
-		else {
-			legId = super.getRequest().getData("leg", int.class);
-			leg = this.repository.findLegById(legId);
-		}
-
-		if (leg == null)
-			super.state(false, "leg", "acme.validation.confirmation.message.claim.leg");
-
-		if (claim.isDraftMode() == false)
+		if (!claim.isDraftMode())
 			super.state(false, "draftMode", "acme.validation.confirmation.message.update");
 	}
 
@@ -92,7 +79,6 @@ public class AssistanceAgentClaimUpdateService extends AbstractGuiService<Assist
 		dataset.put("leg", legChoices.getSelected().getKey());
 		dataset.put("legs", legChoices);
 		dataset.put("pending", pending);
-		dataset.put("draftMode", claim.isDraftMode());
 
 		super.getResponse().addData(dataset);
 	}

@@ -49,7 +49,6 @@ public class AssistanceAgentTrackingLogCreateService extends AbstractGuiService<
 
 		trackingLog.setUpdateMoment(today);
 		trackingLog.setIndicator(Indicator.PENDING);
-		trackingLog.setResolutionPercentage(0.);
 		trackingLog.setDraftMode(true);
 		trackingLog.setClaim(claim);
 
