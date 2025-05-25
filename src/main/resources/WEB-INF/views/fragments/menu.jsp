@@ -41,6 +41,7 @@
 		
 		<acme:menu-option code="master.menu.any">
       		<acme:menu-suboption code="master.menu.any.flights" action="/any/flight/list"/>
+      		<acme:menu-suboption code="master.menu.any.flight-assignment" action="/any/flight-assignment/list"/>
 		</acme:menu-option>
 		
 		<acme:menu-option code="master.menu.provider" access="hasRealm('Provider')">
