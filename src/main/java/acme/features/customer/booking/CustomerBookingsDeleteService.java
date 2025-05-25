@@ -12,62 +12,67 @@ import acme.client.helpers.MomentHelper;
 import acme.client.services.AbstractGuiService;
 import acme.client.services.GuiService;
 import acme.entities.booking.Booking;
+import acme.entities.booking.BookingRecord;
 import acme.entities.booking.TravelClass;
 import acme.entities.flight.Flight;
-import acme.features.airlineManager.flight.AirlineManagerFlightRepository;
+import acme.features.customer.bookingRecord.CustomerBookingRecordRepository;
 import acme.realms.Customer;
 
 @GuiService
-public class CustomerBookingsUpdateService extends AbstractGuiService<Customer, Booking> {
-
-	// Internal state ---------------------------------------------------------
+public class CustomerBookingsDeleteService extends AbstractGuiService<Customer, Booking> {
+	// Internal state --------------------------------------------------------
 
 	@Autowired
 	private CustomerBookingsRepository		repository;
 
 	@Autowired
-	private AirlineManagerFlightRepository	flightRepository;
+	private CustomerBookingRecordRepository	bookingRecordrepository;
 
-	// AbstractGuiService interface -------------------------------------------
+	// AbstractGuiService interfaced -----------------------------------------
 
 
 	@Override
 	public void authorise() {
+		int id;
+		Booking booking;
 		int customerId = super.getRequest().getPrincipal().getActiveRealm().getUserAccount().getId();
-		int bookingId = super.getRequest().getData("id", int.class);
-		Booking booking = this.repository.findBookingById(bookingId);
 
-		boolean status = booking.getCustomer().getUserAccount().getId() == customerId && super.getRequest().getPrincipal().hasRealmOfType(Customer.class);
-		super.getResponse().setAuthorised(status);
+		id = super.getRequest().getData("id", int.class);
+		booking = this.repository.findBookingById(id);
+		boolean isCustomer = super.getRequest().getPrincipal().hasRealmOfType(Customer.class);
+		boolean status = booking.getCustomer().getUserAccount().getId() == customerId;
+
+		super.getResponse().setAuthorised(status && booking.isDraftMode() && isCustomer);
 	}
 
 	@Override
 	public void load() {
 		Booking booking;
-		int bookingId = super.getRequest().getData("id", int.class);
+		int id;
 
-		booking = this.repository.findBookingById(bookingId);
+		id = super.getRequest().getData("id", int.class);
+		booking = this.repository.findBookingById(id);
 
 		super.getBuffer().addData(booking);
 	}
 
 	@Override
-	public void bind(final Booking object) {
-		super.bindObject(object, "locatorCode", "purchaseMoment", "price", "lastNibble", "travelClass", "flight");
+	public void bind(final Booking booking) {
+
+		super.bindObject(booking, "locatorCode", "purchaseMoment", "price", "lastNibble", "travelClass", "flight");
 	}
 
 	@Override
 	public void validate(final Booking booking) {
-		if (!booking.isDraftMode())
-			super.state(false, "draftMode", "acme.validation.confirmation.message.update");
-		Booking b = this.repository.findBookingByLocatorCode(booking.getLocatorCode());
-		if (b != null && b.getId() != booking.getId())
-			super.state(false, "locatorCode", "acme.validation.confirmation.message.booking.locator-code");
+		;
+
 	}
 
 	@Override
 	public void perform(final Booking booking) {
-		this.repository.save(booking);
+		for (BookingRecord bk : this.bookingRecordrepository.findBookingRecordByBookingId(booking.getId()))
+			this.bookingRecordrepository.delete(bk);
+		this.repository.delete(booking);
 	}
 
 	@Override
@@ -78,7 +83,7 @@ public class CustomerBookingsUpdateService extends AbstractGuiService<Customer, 
 
 		Date today = MomentHelper.getCurrentMoment();
 		Collection<Flight> flights = this.repository.findAllPublishedFlightsWithFutureDeparture(today);
-		flightChoices = SelectChoices.from(flights, "Destination", booking.getFlight());
+		flightChoices = SelectChoices.from(flights, "tag", booking.getFlight());
 		choices = SelectChoices.from(TravelClass.class, booking.getTravelClass());
 		Collection<String> passengers = this.repository.findPassengersNameByBooking(booking.getId());
 
