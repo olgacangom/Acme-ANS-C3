@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import acme.client.components.datatypes.Money;
 import acme.client.components.models.Dataset;
 import acme.client.helpers.MomentHelper;
 import acme.client.services.AbstractGuiService;
@@ -74,6 +75,16 @@ public class AirlineManagerDashboardShowService extends AbstractGuiService<Airli
 		}
 		Airport mostPopularAirport = popularAirport.keySet().stream().sorted(Comparator.comparingInt(airport -> popularAirport.get(airport))).findFirst().get();
 		Airport lessPopularAirport = popularAirport.keySet().stream().sorted(Comparator.comparingInt(airport -> popularAirport.get(airport)).reversed()).findFirst().get();
+		//numberOfLegsByStatus
+		Map<Status, Integer> numberOfLegsByStatus = new HashMap<>();
+		for (Flight flight : flights)
+			for (Leg leg : this.repository.findLegsByFlightId(flight.getId()))
+				if (numberOfLegsByStatus.containsKey(leg.getStatus()))
+					numberOfLegsByStatus.put(leg.getStatus(), 1);
+				else
+					numberOfLegsByStatus.put(leg.getStatus(), numberOfLegsByStatus.get(leg.getStatus()) + 1);
+		//money avg, dev, max min
+		List<Money> flightCosts = flights.stream().map(f -> f.getCost()).toList();
 
 		dashboard = new AirlineManagerDashboard();
 		dashboard.setRanking(ranking);
@@ -81,6 +92,7 @@ public class AirlineManagerDashboardShowService extends AbstractGuiService<Airli
 		dashboard.setRatioOfOntimeAndDelayedFlights(onTimeFlights / delayedFlights);
 		dashboard.setMostPopularAirport(mostPopularAirport);
 		dashboard.setLessPopularAirport(lessPopularAirport);
+		dashboard.setNumberofLegsByStatus(numberOfLegsByStatus);
 		super.getBuffer().addData(dashboard);
 	}
 
@@ -90,11 +102,14 @@ public class AirlineManagerDashboardShowService extends AbstractGuiService<Airli
 
 		Dataset dataset;
 
-		dataset = super.unbindObject(object, "ranking", "yearsToRetire", "ratioOfOntimeAndDelayedFlights", "numberofLegsByStatus", "averageFlightCost", "deviationFlightCost", "maximumFlightCost", "minimumFlightCost");
+		dataset = super.unbindObject(object, "ranking", "yearsToRetire", "ratioOfOntimeAndDelayedFlights", "averageFlightCost", "deviationFlightCost", "maximumFlightCost", "minimumFlightCost");
 
 		dataset.put("mostPopularAirport", object.getMostPopularAirport().getIataCode());
 		dataset.put("lessPopularAirport", object.getLessPopularAirport().getIataCode());
-
+		String numberofLegsByStatus = "";
+		for (Status status : object.getNumberofLegsByStatus().keySet())
+			numberofLegsByStatus += status.toString() + " " + object.getNumberofLegsByStatus().get(status) + ",";
+		dataset.put("numberofLegsByStatus", numberofLegsByStatus);
 		super.getResponse().addData(dataset);
 	}
 }

@@ -21,4 +21,9 @@
 	<acme:input-double code="airline-manager.dashboard.form.label.ratioOfOntimeAndDelayedFlights" path="ratioOfOntimeAndDelayedFlights"/>
 	<acme:input-textbox code="airline-manager.dashboard.form.label.mostPopularAirport" path="mostPopularAirport"/>
 	<acme:input-textbox code="airline-manager.dashboard.form.label.lessPopularAirport" path="lessPopularAirport"/>
+	<acme:input-textbox code="airline-manager.dashboard.form.label.numberofLegsByStatus" path="numberofLegsByStatus"/>
+	<acme:input-textbox code="airline-manager.dashboard.form.label.averageFlightCost" path="averageFlightCost"/>
+	<acme:input-textbox code="airline-manager.dashboard.form.label.deviationFlightCost" path="deviationFlightCost"/>
+	<acme:input-textbox code="airline-manager.dashboard.form.label.maximumFlightCost" path="maximumFlightCost"/>
+	<acme:input-textbox code="airline-manager.dashboard.form.label.minimumFlightCost" path="minimumFlightCost"/>
 </acme:form>
