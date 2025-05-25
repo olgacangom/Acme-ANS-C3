@@ -1,5 +1,5 @@
 
-package acme.features.airlineManager.dashboard;
+package acme.features.airlineManager.airlineManagerDashboard;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import acme.client.components.models.Dataset;
 import acme.client.helpers.MomentHelper;
 import acme.client.services.AbstractGuiService;
+import acme.client.services.GuiService;
 import acme.entities.airport.Airport;
 import acme.entities.flight.Flight;
 import acme.entities.leg.Leg;
@@ -20,6 +21,7 @@ import acme.entities.leg.Status;
 import acme.forms.AirlineManagerDashboard;
 import acme.realms.AirlineManager;
 
+@GuiService
 public class AirlineManagerDashboardShowService extends AbstractGuiService<AirlineManager, AirlineManagerDashboard> {
 
 	@Autowired
@@ -61,22 +63,17 @@ public class AirlineManagerDashboardShowService extends AbstractGuiService<Airli
 		//popular airport
 		List<Flight> flights = new ArrayList<>(this.repository.findFlightsByAirlineManagerId(managerId));
 		Map<Airport, Integer> popularAirport = new HashMap<>();
+		for (Airport airport : this.repository.findAllAirports())
+			popularAirport.put(airport, 0);
 		for (Flight flight : flights) {
 			List<Leg> legs = new ArrayList<>(this.repository.findLegsByFlightId(flight.getId())).stream().sorted(Comparator.comparing(leg -> leg.getScheduledDeparture())).toList();
 			if (legs.isEmpty())
 				continue;
-			if (!popularAirport.containsKey(legs.get(0).getDepartureAirport()))
-				popularAirport.put(legs.get(0).getDepartureAirport(), 1);
-			else
-				popularAirport.put(legs.get(0).getDepartureAirport(), popularAirport.get(legs.get(0).getDepartureAirport()) + 1);
-
-			if (!popularAirport.containsKey(legs.get(legs.size() - 1).getArrivalAirport()))
-				popularAirport.put(legs.get(legs.size() - 1).getArrivalAirport(), 1);
-			else
-				popularAirport.put(legs.get(legs.size() - 1).getArrivalAirport(), popularAirport.get(legs.get(legs.size() - 1).getArrivalAirport()) + 1);
+			popularAirport.put(legs.get(0).getDepartureAirport(), popularAirport.get(legs.get(0).getDepartureAirport()) + 1);
+			popularAirport.put(legs.get(legs.size() - 1).getArrivalAirport(), popularAirport.get(legs.get(legs.size() - 1).getArrivalAirport()) + 1);
 		}
-		Airport mostPopularAirport = popularAirport.keySet().stream().sorted(Comparator.comparing(airport -> popularAirport.get(airport))).findFirst().get();
-		Airport lessPopularAirport = popularAirport.keySet().stream().sorted(Comparator.comparing(airport -> -popularAirport.get(airport))).findFirst().get();
+		Airport mostPopularAirport = popularAirport.keySet().stream().sorted(Comparator.comparingInt(airport -> popularAirport.get(airport))).findFirst().get();
+		Airport lessPopularAirport = popularAirport.keySet().stream().sorted(Comparator.comparingInt(airport -> popularAirport.get(airport)).reversed()).findFirst().get();
 
 		dashboard = new AirlineManagerDashboard();
 		dashboard.setRanking(ranking);
