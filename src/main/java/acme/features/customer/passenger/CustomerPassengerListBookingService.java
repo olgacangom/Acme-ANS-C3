@@ -13,8 +13,7 @@ import acme.features.customer.booking.CustomerBookingsRepository;
 import acme.realms.Customer;
 
 @GuiService
-public class CustomerPassengerListService extends AbstractGuiService<Customer, Passenger> {
-
+public class CustomerPassengerListBookingService extends AbstractGuiService<Customer, Passenger> {
 	// Internal state ---------------------------------------------------------
 
 	@Autowired
@@ -23,31 +22,34 @@ public class CustomerPassengerListService extends AbstractGuiService<Customer, P
 	@Autowired
 	private CustomerBookingsRepository	bookingRepository;
 
-	// AbstractGuiService  interface -------------------------------------------
+	// AbstractGuiService interface -------------------------------------------
 
 
 	@Override
 	public void authorise() {
-		int customerId = super.getRequest().getPrincipal().getActiveRealm().getId();
-		Collection<Passenger> passengers = this.repository.findPassengersByCustomerId(customerId);
-		//		boolean status = super.getRequest().getPrincipal().hasRealmOfType(Customer.class);
-		boolean status = passengers.stream().allMatch(b -> b.getCustomer().getId() == customerId) && super.getRequest().getPrincipal().hasRealmOfType(Customer.class);
+		boolean isCustomer;
 
-		super.getResponse().setAuthorised(status);
+		isCustomer = super.getRequest().getPrincipal().hasRealmOfType(Customer.class);
+		super.getResponse().setAuthorised(isCustomer);
 	}
 
 	@Override
 	public void load() {
-		int customerId = super.getRequest().getPrincipal().getActiveRealm().getId();
-		Collection<Passenger> passengers = this.repository.findPassengersByCustomerId(customerId);
+		//		Collection<Passenger> passengers;
+		//		passengers = this.repository.findPassengersByCustomerId(super.getRequest().getPrincipal().getActiveRealm().getUserAccount().getId());
+
+		int bookingId = super.getRequest().getData("bookingId", int.class);
+		Collection<Passenger> passengers = this.bookingRepository.findPassengersByBookingId(bookingId);
+
 		super.getBuffer().addData(passengers);
 	}
 
 	@Override
 	public void unbind(final Passenger passenger) {
 		Dataset dataset;
+
 		dataset = super.unbindObject(passenger, "fullName", "email");
+
 		super.getResponse().addData(dataset);
 	}
-
 }
