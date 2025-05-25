@@ -11,9 +11,9 @@ import javax.validation.Payload;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = ClaimValidator.class)
+@Constraint(validatedBy = AssistanceAgentValidator.class)
 
-public @interface ValidClaim {
+public @interface ValidAssistanceAgent {
 
 	// Standard validation properties -----------------------------------------
 
@@ -21,5 +21,4 @@ public @interface ValidClaim {
 
 	Class<?>[] groups() default {};
 	Class<? extends Payload>[] payload() default {};
-
 }
