@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import acme.client.components.models.Dataset;
 import acme.client.services.AbstractGuiService;
 import acme.client.services.GuiService;
+import acme.entities.booking.Booking;
 import acme.entities.passenger.Passenger;
 import acme.features.customer.booking.CustomerBookingsRepository;
 import acme.realms.Customer;
@@ -27,10 +28,23 @@ public class CustomerPassengerListBookingService extends AbstractGuiService<Cust
 
 	@Override
 	public void authorise() {
-		boolean isCustomer;
+		boolean status = false;
 
-		isCustomer = super.getRequest().getPrincipal().hasRealmOfType(Customer.class);
-		super.getResponse().setAuthorised(isCustomer);
+		int userAccountId = super.getRequest().getPrincipal().getAccountId();
+		int bookingId = super.getRequest().getData("bookingId", int.class); // <- de la URL
+
+		// Obtener el customer autenticado
+		Customer customer = this.bookingRepository.findCustomerByUserAccountId(userAccountId);
+
+		if (customer != null) {
+			// Buscar booking por ID
+			Booking booking = this.bookingRepository.findBookingById(bookingId);
+			if (booking != null)
+				// Validar que el booking pertenezca al customer autenticado
+				status = booking.getCustomer().getId() == customer.getId();
+		}
+
+		super.getResponse().setAuthorised(status);
 	}
 
 	@Override

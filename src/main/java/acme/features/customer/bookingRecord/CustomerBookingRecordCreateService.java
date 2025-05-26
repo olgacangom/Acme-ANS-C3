@@ -65,20 +65,20 @@ public class CustomerBookingRecordCreateService extends AbstractGuiService<Custo
 
 	@Override
 	public void validate(final BookingRecord bookingRecord) {
-
-		if (bookingRecord.getBooking() == null && bookingRecord.getPassenger() == null) {
-			super.state(false, "booking", "acme.validation.confirmation.message.booking-record.create.booking");
-			super.state(false, "passenger", "acme.validation.confirmation.message.booking-record.create.passenger");
-
-		} else if (bookingRecord.getPassenger() == null)
-			super.state(false, "passenger", "acme.validation.confirmation.message.booking-record.create.passenger");
-		else if (bookingRecord.getBooking() == null)
-			super.state(false, "booking", "acme.validation.confirmation.message.booking-record.create.booking");
-		else {
-			BookingRecord br = this.repository.findBookingRecordBybookingIdPassengerId(bookingRecord.getBooking().getId(), bookingRecord.getPassenger().getId());
-			if (br != null)
-				super.state(false, "*", "acme.validation.confirmation.message.booking-record.create");
-		}
+		//
+		//		if (bookingRecord.getBooking() == null && bookingRecord.getPassenger() == null) {
+		//			super.state(false, "booking", "acme.validation.confirmation.message.booking-record.create.booking");
+		//			super.state(false, "passenger", "acme.validation.confirmation.message.booking-record.create.passenger");
+		//
+		//		} else if (bookingRecord.getPassenger() == null)
+		//			super.state(false, "passenger", "acme.validation.confirmation.message.booking-record.create.passenger");
+		//		else if (bookingRecord.getBooking() == null)
+		//			super.state(false, "booking", "acme.validation.confirmation.message.booking-record.create.booking");
+		//		else {
+		//			BookingRecord br = this.repository.findBookingRecordBybookingIdPassengerId(bookingRecord.getBooking().getId(), bookingRecord.getPassenger().getId());
+		//			if (br != null)
+		//				super.state(false, "*", "acme.validation.confirmation.message.booking-record.create");
+		//		}
 
 	}
 
