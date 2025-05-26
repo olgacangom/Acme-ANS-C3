@@ -57,19 +57,6 @@ public class AssistanceAgentClaimUpdateService extends AbstractGuiService<Assist
 
 	@Override
 	public void validate(final Claim claim) {
-		int legId;
-		Leg leg;
-
-		if (claim.getIndicator() != Indicator.PENDING)
-			leg = this.repository.findLegByClaimId(claim.getId());
-		else {
-			legId = super.getRequest().getData("leg", int.class);
-			leg = this.repository.findLegById(legId);
-		}
-
-		if (leg == null)
-			super.state(false, "leg", "acme.validation.confirmation.message.claim.leg");
-
 		if (claim.isDraftMode() == false)
 			super.state(false, "draftMode", "acme.validation.confirmation.message.update");
 	}
