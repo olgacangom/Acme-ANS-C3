@@ -45,6 +45,7 @@ public class TrackingLogValidator extends AbstractValidator<ValidTrackingLog, Tr
 			super.state(context, false, "*", "acme.validation.NotNull.message");
 
 		else {
+			TrackingLog existing = this.trackingLogRepository.findTrackingLogById(trackingLog.getId());
 
 			// Resolution is mandatory if resolutionPercentage=100%
 			{
@@ -92,7 +93,7 @@ public class TrackingLogValidator extends AbstractValidator<ValidTrackingLog, Tr
 
 					boolean correctPercentage;
 					Double currentPercentage = trackingLog.getResolutionPercentage();
-					TrackingLog existing = this.trackingLogRepository.findTrackingLogById(trackingLog.getId());
+
 					List<TrackingLog> logs = this.trackingLogRepository.findTrackingLogsByResolutionPercentage(trackingLog.getClaim().getId());
 
 					if (existing == null) {
