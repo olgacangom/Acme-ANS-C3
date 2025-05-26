@@ -29,7 +29,7 @@ public interface FlightCrewMemberDashboardRepository extends AbstractRepository 
 	@Query("SELECT DISTINCT l.arrivalAirport.name FROM FlightAssignment f JOIN f.leg l WHERE f.member.id = :flightCrewMemberId ORDER BY f.lastUpdate DESC")
 	List<String> findLastFiveDestinations(int flightCrewMemberId, Pageable pageable);
 
-	@Query("SELECT COUNT(DISTINCT a.flightAssignment.leg.id) FROM ActivityLog a WHERE a.severityLevel BETWEEN :innerRange AND :outerRange")
+	@Query("SELECT COUNT (DISTINCT a.assignment.leg.id) FROM ActivityLog a WHERE a.severityLevel >= :innerRange AND a.severityLevel <= :outerRange")
 	Integer countLegsWithSeverity(int innerRange, int outerRange);
 
 	@Query("SELECT f FROM FlightAssignment f JOIN f.leg l WHERE f.member.id = :flightCrewMemberId ORDER BY l.scheduledArrival DESC")

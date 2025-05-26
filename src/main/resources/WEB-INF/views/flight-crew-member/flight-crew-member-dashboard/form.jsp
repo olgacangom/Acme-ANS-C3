@@ -11,6 +11,5 @@
 	<acme:input-textbox code="flight-crew-member.dashboard.form.label.lastLegCrewMembers" path="lastLegCrewMembers" readonly="true"/>
 	<acme:input-textbox code="flight-crew-member.dashboard.form.label.flightAssignmentsGroupedByStatus" path="flightAssignmentsGroupedByStatus" readonly="true"/>
 	<acme:input-textbox code="flight-crew-member.dashboard.form.label.flightAssignmentsStatsLastMonth" path="flightAssignmentsStatsLastMonth" readonly="true"/>
-	
-	
+
 </acme:form>

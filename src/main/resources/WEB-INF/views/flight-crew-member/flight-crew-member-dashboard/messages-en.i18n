@@ -9,18 +9,10 @@
 # they accept any liabilities with respect to them.
 
 flight-crew-member.flight-crew-member-dashboard.form.title = Flight Crew Member Dashboard
-flight-crew-member.flight-crew-member-dashboard.form.title.general-indicators = General Indicators
-flight-crew-member.flight-crew-member-dashboard.form.title.review-statistics = Statistics
-
-flight-crew-member.flight-crew-member-dashboard.form.label.lastFiveDestinations = Last five destinations to which I have been assigned:
-flight-crew-member.flight-crew-member-dashboard.form.label.legsWithIncidentSeverity3 = Number of legs that have an activity log record with an incident severity rang-ing from 0 up to 3:
-flight-crew-member.flight-crew-member-dashboard.form.label.legsWithIncidentSeverity7 = Number of legs that have an activity log record with an incident severity rang-ing from 4 up to 7:
-flight-crew-member.flight-crew-member-dashboard.form.label.legsWithIncidentSeverity10 = Number of legs that have an activity log record with an incident severity rang-ing from 8 up to 10:
-flight-crew-member.flight-crew-member-dashboard.form.label.lastLegCrewMembers = Flight crew members assigned in my last leg:
-flight-crew-member.flight-crew-member-dashboard.form.label.flightAssignmentsGroupedByStatus = Amount of flight assignments grouped by status:
-
-flight-crew-member.flight-crew-member-dashboard.form.label.review-count = Number of flight assignments (Last year):
-flight-crew-member.flight-crew-member-dashboard.form.label.review-average = Average number of flight assignments (Last year):
-flight-crew-member.flight-crew-member-dashboard.form.label.review-min = Minimum number of flight assignments (Last year):
-flight-crew-member.flight-crew-member-dashboard.form.label.review-max = Maximum number of flight assignments (Last year):
-flight-crew-member.flight-crew-member-dashboard.form.label.review-deviation = Deviation of flight assignments (Last year):
+flight-crew-member.dashboard.form.label.lastFiveDestinations = Last five destinations
+flight-crew-member.dashboard.form.label.legsWithIncidentSeverity3 = Legs with incident severity from 0 to 3
+flight-crew-member.dashboard.form.label.legsWithIncidentSeverity7 = Legs with incident severity from 4 to 7
+flight-crew-member.dashboard.form.label.legsWithIncidentSeverity10 = Legs with incident severity from 7 to 10
+flight-crew-member.dashboard.form.label.lastLegCrewMembers = Last leg crew members
+flight-crew-member.dashboard.form.label.flightAssignmentsGroupedByStatus = Assignments grouped by status
+flight-crew-member.dashboard.form.label.flightAssignmentsStatsLastMonth = Stats last month

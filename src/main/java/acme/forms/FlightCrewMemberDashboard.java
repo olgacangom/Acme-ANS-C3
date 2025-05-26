@@ -4,9 +4,8 @@ package acme.forms;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.stat.Statistics;
-
 import acme.client.components.basis.AbstractForm;
+import acme.datatypes.Statistics;
 import acme.entities.flightAssignment.StatusAssignment;
 import lombok.Getter;
 import lombok.Setter;

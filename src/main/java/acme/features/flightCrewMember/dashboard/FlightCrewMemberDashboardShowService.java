@@ -112,7 +112,7 @@ public class FlightCrewMemberDashboardShowService extends AbstractGuiService<Fli
 		dashboard.setLegsWithIncidentSeverity10(legsWithIncidentSeverity10);
 		dashboard.setLastLegCrewMembers(lastLegMembers);
 		dashboard.setFlightAssignmentsGroupedByStatus(flightAssignmentsGroupedByStatus);
-
+		dashboard.setFlightAssignmentsStatsLastMonth(flightAssignmentsStatsLastMonth);
 		super.getBuffer().addData(dashboard);
 	}
 
@@ -122,6 +122,14 @@ public class FlightCrewMemberDashboardShowService extends AbstractGuiService<Fli
 			"lastFiveDestinations", "legsWithIncidentSeverity3", // 
 			"legsWithIncidentSeverity7", "legsWithIncidentSeverity10", //
 			"lastLegCrewMembers", "flightAssignmentsGroupedByStatus", "flightAssignmentsStatsLastMonth");
+
+		String ultimo = "   Average: " + dashboard.getFlightAssignmentsStatsLastMonth().getAverageString() + "   Desviation: " + dashboard.getFlightAssignmentsStatsLastMonth().getDeviationString() + "   Min: "
+			+ dashboard.getFlightAssignmentsStatsLastMonth().getMinimumString() + "   Max: " + dashboard.getFlightAssignmentsStatsLastMonth().getMaximumString() + "   Count: " + dashboard.getFlightAssignmentsStatsLastMonth().getCountString();
+
+		dataset.put("lastFiveDestinations", String.join(", ", dashboard.getLastFiveDestinations()));
+		dataset.put("lastLegCrewMembers", dashboard.getLastLegCrewMembers().toString().replace("[", "").replace("]", ""));
+		dataset.put("flightAssignmentsGroupedByStatus", dashboard.getFlightAssignmentsGroupedByStatus().toString().replace("{", "").replace("}", ""));
+		dataset.put("flightAssignmentsStatsLastMonth", ultimo);
 
 		super.getResponse().addData(dataset);
 	}
