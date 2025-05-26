@@ -4,8 +4,10 @@ package acme.features.airlineManager.airlineManagerDashboard;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +50,7 @@ public class AirlineManagerDashboardShowService extends AbstractGuiService<Airli
 		List<AirlineManager> managers = new ArrayList<>(this.repository.findAirlineManagers());
 		List<AirlineManager> managersRanking = managers.stream().sorted(Comparator.comparing(m -> -m.getYearsOfExperience())).collect(Collectors.toList());
 		int ranking = managersRanking.indexOf(manager) + 1;
-		int yearsToRetire = MomentHelper.getBaseMoment().getYear() - manager.getBirthDate().getYear();
+		int yearsToRetire = 65 - (MomentHelper.getCurrentMoment().getYear() - manager.getBirthDate().getYear());
 		//ratio
 		double onTimeFlights = 0;
 		double delayedFlights = 0;
@@ -77,15 +79,38 @@ public class AirlineManagerDashboardShowService extends AbstractGuiService<Airli
 		Airport lessPopularAirport = popularAirport.keySet().stream().sorted(Comparator.comparingInt(airport -> popularAirport.get(airport)).reversed()).findFirst().get();
 		//numberOfLegsByStatus
 		Map<Status, Integer> numberOfLegsByStatus = new HashMap<>();
+		for (Status status : Status.values())
+			numberOfLegsByStatus.put(status, 0);
 		for (Flight flight : flights)
 			for (Leg leg : this.repository.findLegsByFlightId(flight.getId()))
-				if (numberOfLegsByStatus.containsKey(leg.getStatus()))
-					numberOfLegsByStatus.put(leg.getStatus(), 1);
-				else
-					numberOfLegsByStatus.put(leg.getStatus(), numberOfLegsByStatus.get(leg.getStatus()) + 1);
-		//money avg, dev, max min
-		List<Money> flightCosts = flights.stream().map(f -> f.getCost()).toList();
+				numberOfLegsByStatus.put(leg.getStatus(), numberOfLegsByStatus.get(leg.getStatus()) + 1);
 
+		//money avg, dev, max min
+		List<Money> averageFlightCost = new ArrayList<>();
+		List<Money> deviationFlightCost = new ArrayList<>();
+		List<Money> maximumFlightCost = new ArrayList<>();
+		List<Money> minimumFlightCost = new ArrayList<>();
+		Set<String> currencies = new HashSet<>();
+		for (Flight flight : flights)
+			currencies.add(flight.getCost().getCurrency());
+		for (String currency : currencies) {
+			Money avg = new Money();
+			avg.setCurrency(currency);
+			avg.setAmount(this.repository.avgFlightCostByCurrency(currency));
+			averageFlightCost.add(avg);
+			Money dev = new Money();
+			dev.setCurrency(currency);
+			dev.setAmount(this.repository.devFlightCostByCurrency(currency));
+			deviationFlightCost.add(dev);
+			Money max = new Money();
+			max.setCurrency(currency);
+			max.setAmount(this.repository.maxFlightCostByCurrency(currency));
+			maximumFlightCost.add(max);
+			Money min = new Money();
+			min.setCurrency(currency);
+			min.setAmount(this.repository.minFlightCostByCurrency(currency));
+			minimumFlightCost.add(min);
+		}
 		dashboard = new AirlineManagerDashboard();
 		dashboard.setRanking(ranking);
 		dashboard.setYearsToRetire(yearsToRetire);
@@ -93,6 +118,10 @@ public class AirlineManagerDashboardShowService extends AbstractGuiService<Airli
 		dashboard.setMostPopularAirport(mostPopularAirport);
 		dashboard.setLessPopularAirport(lessPopularAirport);
 		dashboard.setNumberofLegsByStatus(numberOfLegsByStatus);
+		dashboard.setAverageFlightCost(averageFlightCost);
+		dashboard.setDeviationFlightCost(deviationFlightCost);
+		dashboard.setMaximumFlightCost(maximumFlightCost);
+		dashboard.setMinimumFlightCost(minimumFlightCost);
 		super.getBuffer().addData(dashboard);
 	}
 
@@ -102,14 +131,27 @@ public class AirlineManagerDashboardShowService extends AbstractGuiService<Airli
 
 		Dataset dataset;
 
-		dataset = super.unbindObject(object, "ranking", "yearsToRetire", "ratioOfOntimeAndDelayedFlights", "averageFlightCost", "deviationFlightCost", "maximumFlightCost", "minimumFlightCost");
+		dataset = super.unbindObject(object, "ranking", "yearsToRetire", "ratioOfOntimeAndDelayedFlights");
 
 		dataset.put("mostPopularAirport", object.getMostPopularAirport().getIataCode());
 		dataset.put("lessPopularAirport", object.getLessPopularAirport().getIataCode());
 		String numberofLegsByStatus = "";
 		for (Status status : object.getNumberofLegsByStatus().keySet())
-			numberofLegsByStatus += status.toString() + " " + object.getNumberofLegsByStatus().get(status) + ",";
+			numberofLegsByStatus += status.toString() + ": " + object.getNumberofLegsByStatus().get(status) + ", ";
+		numberofLegsByStatus = numberofLegsByStatus.substring(0, numberofLegsByStatus.length() - 2);
 		dataset.put("numberofLegsByStatus", numberofLegsByStatus);
+		dataset.put("averageFlightCost", this.getMoneyText(object.getAverageFlightCost()));
+		dataset.put("deviationFlightCost", this.getMoneyText(object.getDeviationFlightCost()));
+		dataset.put("maximumFlightCost", this.getMoneyText(object.getMaximumFlightCost()));
+		dataset.put("minimumFlightCost", this.getMoneyText(object.getMinimumFlightCost()));
 		super.getResponse().addData(dataset);
+	}
+	private String getMoneyText(final List<Money> moneyList) {
+		String moneyText = "";
+		for (Money money : moneyList)
+			moneyText += money.getCurrency() + " " + money.getAmount() + ", ";
+		if (moneyText.endsWith(", "))
+			moneyText = moneyText.substring(0, moneyText.length() - 2);
+		return moneyText;
 	}
 }

@@ -8,3 +8,14 @@
 # purposes.  The copyright owner does not offer any warranties or representations, nor do
 # they accept any liabilities with respect to them.
 
+airline-manager.airline-manager-dashboard.form.title = Airline Manager Dashboard
+airline-manager.dashboard.form.label.ranking = Ranking
+airline-manager.dashboard.form.label.yearsToRetire = Years to retire
+airline-manager.dashboard.form.label.ratioOfOntimeAndDelayedFlights = Ratio of on time and delayed flights
+airline-manager.dashboard.form.label.mostPopularAirport = Most popular airport
+airline-manager.dashboard.form.label.lessPopularAirport = Less popular airport
+airline-manager.dashboard.form.label.numberofLegsByStatus = Number of legs by status
+airline-manager.dashboard.form.label.averageFlightCost = Average flight cost
+airline-manager.dashboard.form.label.deviationFlightCost = Deviation flight cost
+airline-manager.dashboard.form.label.maximumFlightCost = Maximum flight cost
+airline-manager.dashboard.form.label.minimumFlightCost = Minimum flight cost

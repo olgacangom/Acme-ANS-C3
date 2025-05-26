@@ -39,4 +39,16 @@ public interface AirlineManagerDashboardRepository extends AbstractRepository {
 
 	@Query("select a from Airport a")
 	Collection<Airport> findAllAirports();
+
+	@Query("select avg(f.cost.amount) from Flight f where f.cost.currency= :currency")
+	public Double avgFlightCostByCurrency(String currency);
+
+	@Query("select stddev(f.cost.amount) from Flight f where f.cost.currency= :currency")
+	public Double devFlightCostByCurrency(String currency);
+
+	@Query("select max(f.cost.amount) from Flight f where f.cost.currency= :currency")
+	public Double maxFlightCostByCurrency(String currency);
+
+	@Query("select min(f.cost.amount) from Flight f where f.cost.currency= :currency")
+	public Double minFlightCostByCurrency(String currency);
 }

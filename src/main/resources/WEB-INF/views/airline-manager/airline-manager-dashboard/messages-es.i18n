@@ -7,3 +7,15 @@
 # this software. It has been tested carefully, but it is not guaranteed for any particular
 # purposes.  The copyright owner does not offer any warranties or representations, nor do
 # they accept any liabilities with respect to them.
+
+airline-manager.airline-manager-dashboard.form.title = Tablero del Generente de Aerolínea
+airline-manager.dashboard.form.label.ranking = Puesto
+airline-manager.dashboard.form.label.yearsToRetire = Años para retirarse
+airline-manager.dashboard.form.label.ratioOfOntimeAndDelayedFlights = Ratio de los vuelos puntuales y retrasados
+airline-manager.dashboard.form.label.mostPopularAirport = Aeropuerto más popular
+airline-manager.dashboard.form.label.lessPopularAirport = Aeropuerto menos popular
+airline-manager.dashboard.form.label.numberofLegsByStatus = Número de tramos por estado
+airline-manager.dashboard.form.label.averageFlightCost = Media del coste de vuelo
+airline-manager.dashboard.form.label.deviationFlightCost = Desviación del coste de vuelo
+airline-manager.dashboard.form.label.maximumFlightCost = Coste de vuelo máximo
+airline-manager.dashboard.form.label.minimumFlightCost = Coste de vuelo mímimo
