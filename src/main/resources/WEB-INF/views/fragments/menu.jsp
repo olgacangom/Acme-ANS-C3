@@ -53,6 +53,7 @@
 		</acme:menu-option>
 		
 		<acme:menu-option code="master.menu.airline-manager" access="hasRealm('AirlineManager')">
+		<acme:menu-suboption code="master.menu.airline-manager.dashboard" action="/airline-manager/airline-manager-dashboard/show"/>
 			<acme:menu-suboption code="master.menu.airline-manager.flight.list" action="/airline-manager/flight/list"/>
 		</acme:menu-option>
 		
