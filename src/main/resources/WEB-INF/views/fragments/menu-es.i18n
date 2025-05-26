@@ -64,3 +64,4 @@ master.menu.customer.booking-record.list = Reservas Pasajeros
 
 master.menu.any = Cualquiera
 master.menu.any.flights = Vuelos
+master.menu.any.flight-assignment = Asignaciones de vuelos
