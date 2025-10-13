@@ -63,4 +63,7 @@ public interface CustomerBookingsRepository extends AbstractRepository {
 		  )
 		""")
 	Collection<Flight> findAllPublishedFlightsWithFutureDeparture(@Param("today") Date today);
+
+	@Query("select f from Flight f where f.draftMode = false")
+	Collection<Flight> findAllPublishedFlights();
 }

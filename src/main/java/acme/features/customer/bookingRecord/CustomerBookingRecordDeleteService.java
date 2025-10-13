@@ -45,27 +45,32 @@ public class CustomerBookingRecordDeleteService extends AbstractGuiService<Custo
 
 	@Override
 	public void load() {
-		int bookingId = super.getRequest().getData("id", int.class);
+		int bookingRecordId = super.getRequest().getData("id", int.class);
 
-		BookingRecord bookingRecord = this.repository.findBookingRecordById(bookingId);
+		BookingRecord bookingRecord = this.repository.findBookingRecordById(bookingRecordId);
 
 		super.getBuffer().addData(bookingRecord);
 	}
 
 	@Override
 	public void bind(final BookingRecord bookingRecord) {
-		super.bindObject(bookingRecord, "passenger");
+		//		super.bindObject(bookingRecord, "passenger");
 	}
 
 	@Override
 	public void validate(final BookingRecord bookingRecord) {
-		if (!bookingRecord.getBooking().isDraftMode())
-			super.state(false, "booking", "customer.booking-record.form.error-not-draft");
+		//		if (!bookingRecord.getBooking().isDraftMode())
+		//			super.state(false, "booking", "customer.booking-record.form.error-not-draft");
 	}
 
 	@Override
 	public void perform(final BookingRecord bookingRecord) {
 		this.repository.delete(bookingRecord);
+	}
+
+	@Override
+	public void unbind(final BookingRecord bookingRecord) {
+
 	}
 
 }

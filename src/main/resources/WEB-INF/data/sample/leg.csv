@@ -2,9 +2,24 @@ key,draftMode,key:flight,flightNumber,scheduledDeparture,scheduledArrival,status
 #base entity
 leg-00,false,flight-12,BBB1111,2015/03/13 00:00,2015/03/13 02:00,ON_TIME,airport-01,airport-02,aircraft-00
 leg-01,false,flight-13,BBB1112,2015/03/13 00:00,2015/03/13 04:00,LANDED,airport-01,airport-02,aircraft-03
-leg-02,true,flight-12,BBB1113,2015/03/13 03:00,2015/03/13 04:00,ON_TIME,airport-02,airport-03,aircraft-01
+leg-02,false,flight-12,BBB1113,2026/03/13 03:00,2026/03/13 04:00,ON_TIME,airport-02,airport-03,aircraft-01
 leg-03,false,flight-11,BBB1114,2028/03/13 00:00,2028/03/13 07:00,ON_TIME,airport-01,airport-02,aircraft-04
 leg-04,true,flight-12,BBB1115,2015/03/13 05:00,2015/03/13 07:00,ON_TIME,airport-03,airport-02,aircraft-01
 leg-05,true,flight-12,BBB1116,2015/03/13 08:00,2015/03/13 09:00,ON_TIME,airport-03,airport-02,aircraft-01
 leg-06,true,flight-12,BBB1117,2015/03/13 10:00,2015/03/13 11:00,ON_TIME,airport-03,airport-02,aircraft-01
 leg-07,false,flight-14,BBB1118,2015/03/14 05:00,2015/03/14 07:00,LANDED,airport-01,airport-02,aircraft-01
+leg-08,true,flight-19,BBB1119,2024/12/31 23:59,2025/01/01 01:00,DELAYED,airport-01,airport-01,aircraft-01
+leg-09,true,flight-20,BBB1110,2025/01/01 00:00,2025/01/01 02:00,DELAYED,airport-01,airport-01,aircraft-00
+#status
+leg-20,false,flight-21,BBB1130,2015/03/13 00:00,2015/03/14 00:00,ON_TIME,airport-01,airport-01,aircraft-00
+leg-21,true,flight-22,BBB1131,2030/03/13 00:00,2030/03/14 00:00,CANCELLED,airport-01,airport-01,aircraft-00
+leg-22,true,flight-23,BBB1132,2031/03/13 00:00,2031/03/14 00:00,LANDED,airport-01,airport-01,aircraft-00
+#others
+leg-10,true,flight-00,BBB1120,2032/03/13 00:00,2032/03/14 00:00,ON_TIME,airport-01,airport-01,aircraft-00
+leg-11,true,flight-01,BBB1121,2033/03/13 00:00,2033/03/14 00:00,ON_TIME,airport-01,airport-01,aircraft-00
+leg-12,true,flight-01,BBB1122,2034/03/14 00:00,2034/03/15 00:00,ON_TIME,airport-01,airport-01,aircraft-00
+leg-13,true,flight-03,BBB1123,2035/03/13 00:00,2035/03/14 00:00,ON_TIME,airport-01,airport-01,aircraft-00
+leg-14,true,flight-05,BBB1124,2036/03/13 00:00,2036/03/14 00:00,ON_TIME,airport-01,airport-01,aircraft-00
+leg-15,true,flight-06,BBB1125,2037/03/13 00:00,2037/03/14 00:00,ON_TIME,airport-01,airport-01,aircraft-00
+leg-16,false,flight-02,BBB1200,2026/01/01 10:00,2026/01/01 12:00,ON_TIME,airport-01,airport-02,aircraft-01
+leg-17,false,flight-01,BBB1201,2026/02/01 09:00,2026/02/01 11:00,ON_TIME,airport-01,airport-02,aircraft-01

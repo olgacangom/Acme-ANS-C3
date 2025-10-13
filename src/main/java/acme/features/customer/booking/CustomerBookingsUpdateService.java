@@ -15,7 +15,6 @@ import acme.entities.booking.Booking;
 import acme.entities.booking.TravelClass;
 import acme.entities.flight.Flight;
 import acme.entities.passenger.Passenger;
-import acme.features.airlineManager.flight.AirlineManagerFlightRepository;
 import acme.realms.Customer;
 
 @GuiService
@@ -24,10 +23,10 @@ public class CustomerBookingsUpdateService extends AbstractGuiService<Customer, 
 	// Internal state ---------------------------------------------------------
 
 	@Autowired
-	private CustomerBookingsRepository		repository;
+	private CustomerBookingsRepository repository;
 
-	@Autowired
-	private AirlineManagerFlightRepository	flightRepository;
+	//	@Autowired
+	//	private LegRepository				legRepository;
 
 	// AbstractGuiService interface -------------------------------------------
 
@@ -78,8 +77,11 @@ public class CustomerBookingsUpdateService extends AbstractGuiService<Customer, 
 		SelectChoices flightChoices;
 
 		Date today = MomentHelper.getCurrentMoment();
-		Collection<Flight> flights = this.flightRepository.findAllFlights().stream().filter(f -> f.getDraftMode() == false).toList();
-		flightChoices = SelectChoices.from(flights, "tag", booking.getFlight());
+
+		// Usamos directamente el método del repositorio que ya filtra vuelos publicados con al menos un Leg futuro
+		Collection<Flight> flightsInFuture = this.repository.findAllPublishedFlightsWithFutureDeparture(today);
+
+		flightChoices = SelectChoices.from(flightsInFuture, "tag", booking.getFlight());
 		choices = SelectChoices.from(TravelClass.class, booking.getTravelClass());
 
 		Collection<Passenger> passengerN = this.repository.findPassengersByBookingId(booking.getId());
@@ -87,32 +89,11 @@ public class CustomerBookingsUpdateService extends AbstractGuiService<Customer, 
 
 		dataset = super.unbindObject(booking, "locatorCode", "purchaseMoment", "price", "draftMode", "lastNibble");
 		dataset.put("travelClass", choices);
+		dataset.put("passengers", passengers);
 		dataset.put("flight", flightChoices.getSelected().getKey());
 		dataset.put("flights", flightChoices);
-		dataset.put("passengers", passengers);
-		System.out.println(flightChoices);
 
 		super.getResponse().addData(dataset);
 	}
 
-	//	@Override
-	//	public void unbind(final Booking booking) {
-	//		Dataset dataset;
-	//		SelectChoices choices;
-	//		SelectChoices flightChoices;
-	//
-	//		Date today = MomentHelper.getCurrentMoment();
-	//		Collection<Flight> flights = this.repository.findAllPublishedFlightsWithFutureDeparture(today);
-	//		flightChoices = SelectChoices.from(flights, "Destination", booking.getFlight());
-	//		choices = SelectChoices.from(TravelClass.class, booking.getTravelClass());
-	//		Collection<String> passengers = this.repository.findPassengersNameByBooking(booking.getId());
-	//
-	//		dataset = super.unbindObject(booking, "locatorCode", "purchaseMoment", "price", "lastNibble", "draftMode");
-	//		dataset.put("travelClass", choices);
-	//		dataset.put("passengers", passengers);
-	//		dataset.put("flight", flightChoices.getSelected().getKey());
-	//		dataset.put("flights", flightChoices);
-	//
-	//		super.getResponse().addData(dataset);
-	//	}
 }

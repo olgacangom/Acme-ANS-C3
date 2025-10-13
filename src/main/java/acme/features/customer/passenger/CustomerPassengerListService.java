@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import acme.client.components.models.Dataset;
 import acme.client.services.AbstractGuiService;
 import acme.client.services.GuiService;
+import acme.entities.booking.Booking;
 import acme.entities.passenger.Passenger;
-import acme.features.customer.booking.CustomerBookingsRepository;
 import acme.realms.Customer;
 
 @GuiService
@@ -18,35 +18,49 @@ public class CustomerPassengerListService extends AbstractGuiService<Customer, P
 	// Internal state ---------------------------------------------------------
 
 	@Autowired
-	private CustomerPassengerRepository	repository;
-
-	@Autowired
-	private CustomerBookingsRepository	bookingRepository;
+	private CustomerPassengerRepository repository;
 
 	// AbstractGuiService  interface -------------------------------------------
 
 
 	@Override
 	public void authorise() {
+		boolean isCustomer = false;
 		int customerId = super.getRequest().getPrincipal().getActiveRealm().getId();
-		Collection<Passenger> passengers = this.repository.findPassengersByCustomerId(customerId);
-		//		boolean status = super.getRequest().getPrincipal().hasRealmOfType(Customer.class);
-		boolean status = passengers.stream().allMatch(b -> b.getCustomer().getId() == customerId) && super.getRequest().getPrincipal().hasRealmOfType(Customer.class);
 
-		super.getResponse().setAuthorised(status);
+		if (super.getRequest().getData().containsKey("bookingId")) {
+			int bookingId = super.getRequest().getData("bookingId", int.class);
+			Booking booking = this.repository.getBookingById(bookingId);
+
+			isCustomer = booking != null && booking.getCustomer().getId() == customerId;
+		} else
+			isCustomer = super.getRequest().getPrincipal().hasRealmOfType(Customer.class);
+
+		super.getResponse().setAuthorised(isCustomer);
 	}
 
 	@Override
 	public void load() {
 		int customerId = super.getRequest().getPrincipal().getActiveRealm().getId();
-		Collection<Passenger> passengers = this.repository.findPassengersByCustomerId(customerId);
+		Collection<Passenger> passengers;
+
+		if (!super.getRequest().getData().containsKey("bookingId"))
+			passengers = this.repository.findPassengersByCustomerId(customerId);
+		else {
+			Integer bookingId = super.getRequest().getData("bookingId", int.class);
+			passengers = this.repository.findPassengerByBookingId(bookingId);
+		}
+
 		super.getBuffer().addData(passengers);
 	}
 
 	@Override
 	public void unbind(final Passenger passenger) {
-		Dataset dataset;
-		dataset = super.unbindObject(passenger, "fullName", "email");
+		Boolean containsBookingId;
+
+		Dataset dataset = super.unbindObject(passenger, "fullName", "email", "passportNumber", "birthDate", "draftMode", "specialNeeds");
+		containsBookingId = super.getRequest().getData().containsKey("bookingId");
+		super.getResponse().addGlobal("containsBookingId", containsBookingId);
 		super.getResponse().addData(dataset);
 	}
 
