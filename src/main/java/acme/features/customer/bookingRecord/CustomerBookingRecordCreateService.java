@@ -12,8 +12,6 @@ import acme.client.services.GuiService;
 import acme.entities.booking.Booking;
 import acme.entities.booking.BookingRecord;
 import acme.entities.passenger.Passenger;
-import acme.features.customer.booking.CustomerBookingsRepository;
-import acme.features.customer.passenger.CustomerPassengerRepository;
 import acme.realms.Customer;
 
 @GuiService
@@ -22,13 +20,7 @@ public class CustomerBookingRecordCreateService extends AbstractGuiService<Custo
 	// Internal state ---------------------------------------------------------
 
 	@Autowired
-	private CustomerBookingRecordRepository	repository;
-
-	@Autowired
-	private CustomerBookingsRepository		bookingRepository;
-
-	@Autowired
-	private CustomerPassengerRepository		passengerRepository;
+	private CustomerBookingRecordRepository repository;
 
 	// AbstractGuiService interface -------------------------------------------
 
@@ -47,39 +39,24 @@ public class CustomerBookingRecordCreateService extends AbstractGuiService<Custo
 
 	@Override
 	public void bind(final BookingRecord bookingRecord) {
-		//				Booking booking;
-		//				int bookingId;
-		//				Passenger passenger;
-		//				int passengerId;
-		//		
-		//				bookingId = super.getRequest().getData("booking", int.class);
-		//				booking = this.bookingRepository.findBookingById(bookingId);
-		//				passengerId = super.getRequest().getData("passenger", int.class);
-		//				passenger = this.passengerRepository.findPassengerById(passengerId);
-		//		
-		//				super.bindObject(bookingRecord);
-		//				bookingRecord.setBooking(booking);
-		//				bookingRecord.setPassenger(passenger);
 		super.bindObject(bookingRecord, "booking", "passenger");
 	}
 
 	@Override
 	public void validate(final BookingRecord bookingRecord) {
-		//
-		//		if (bookingRecord.getBooking() == null && bookingRecord.getPassenger() == null) {
-		//			super.state(false, "booking", "acme.validation.confirmation.message.booking-record.create.booking");
-		//			super.state(false, "passenger", "acme.validation.confirmation.message.booking-record.create.passenger");
-		//
-		//		} else if (bookingRecord.getPassenger() == null)
-		//			super.state(false, "passenger", "acme.validation.confirmation.message.booking-record.create.passenger");
-		//		else if (bookingRecord.getBooking() == null)
-		//			super.state(false, "booking", "acme.validation.confirmation.message.booking-record.create.booking");
-		//		else {
-		//			BookingRecord br = this.repository.findBookingRecordBybookingIdPassengerId(bookingRecord.getBooking().getId(), bookingRecord.getPassenger().getId());
-		//			if (br != null)
-		//				super.state(false, "*", "acme.validation.confirmation.message.booking-record.create");
-		//		}
+		Passenger passenger = bookingRecord.getPassenger();
+		Booking booking = bookingRecord.getBooking();
 
+		// Validación: el booking debe estar en modo borrador
+		if (booking != null)
+			super.state(booking.isDraftMode(), "booking", "acme.validation.booking-record.booking-not-draft");
+
+		//No permitir duplicados
+		BookingRecord bookingRecordCompare = null;
+		if (passenger != null && booking != null)
+			bookingRecordCompare = this.repository.findBookingRecordBybookingIdPassengerId(passenger.getId(), booking.getId());
+		boolean status1 = bookingRecordCompare == null || bookingRecordCompare.getId() == bookingRecord.getId();
+		super.state(status1, "*", "acme.validation.confirmation.message.booking-record.create");
 	}
 
 	@Override
@@ -89,24 +66,15 @@ public class CustomerBookingRecordCreateService extends AbstractGuiService<Custo
 
 	@Override
 	public void unbind(final BookingRecord bookingRecord) {
-		Dataset dataset;
-		SelectChoices passengerChoices;
-		SelectChoices bookingChoices;
+		Integer customerId = super.getRequest().getPrincipal().getActiveRealm().getId();
 
-		int customerAccountId = super.getRequest().getPrincipal().getActiveRealm().getUserAccount().getId();
-		int customerId = super.getRequest().getPrincipal().getActiveRealm().getId();
-
-		Collection<Booking> bookings = this.bookingRepository.findBookingByCustomerId(customerAccountId);
-		Collection<Passenger> passengers = this.passengerRepository.findPublishedPassengersByCustomerId(customerId);
-
-		bookingChoices = SelectChoices.from(bookings, "locatorCode", bookingRecord.getBooking());
-		passengerChoices = SelectChoices.from(passengers, "fullName", bookingRecord.getPassenger());
-
-		dataset = super.unbindObject(bookingRecord);
-		dataset.put("booking", bookingChoices.getSelected().getKey());
-		dataset.put("bookings", bookingChoices);
-		dataset.put("passenger", passengerChoices.getSelected().getKey());
+		Collection<Passenger> passengers = this.repository.getAllPassengersByCustomer(customerId);
+		Collection<Booking> bookings = this.repository.findAllDraftBookingsByCustomerId(customerId);
+		SelectChoices passengerChoices = SelectChoices.from(passengers, "fullName", bookingRecord.getPassenger());
+		SelectChoices bookingChoices = SelectChoices.from(bookings, "locatorCode", bookingRecord.getBooking());
+		Dataset dataset = super.unbindObject(bookingRecord, "passenger", "booking");
 		dataset.put("passengers", passengerChoices);
+		dataset.put("bookings", bookingChoices);
 
 		super.getResponse().addData(dataset);
 	}

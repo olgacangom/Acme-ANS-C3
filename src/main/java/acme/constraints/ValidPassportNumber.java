@@ -23,7 +23,7 @@ public @interface ValidPassportNumber {
 
 	// Standard validation properties -----------------------------------------
 
-	String message() default "{acme.validation.text.message}";
+	String message() default "{acme.validation.passport}";
 
 	Class<?>[] groups() default {};
 	Class<? extends Payload>[] payload() default {};

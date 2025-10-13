@@ -13,15 +13,20 @@
 package acme.entities.booking;
 
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import acme.client.components.datatypes.Money;
 import acme.client.repositories.AbstractRepository;
+import acme.entities.flight.Flight;
 
 @Repository
 public interface FlightRepository extends AbstractRepository {
 
 	@Query("select f.cost from Flight f where f.id = :flightId")
 	Money findCostByFlight(int flightId);
+
+	@Query("select f from Flight f where f.id = :flightId")
+	Flight findFlightById(@Param("flightId") Integer flightId);
 
 }

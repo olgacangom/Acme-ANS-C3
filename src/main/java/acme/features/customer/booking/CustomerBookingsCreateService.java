@@ -15,7 +15,6 @@ import acme.entities.booking.Booking;
 import acme.entities.booking.TravelClass;
 import acme.entities.flight.Flight;
 import acme.entities.passenger.Passenger;
-import acme.features.airlineManager.flight.AirlineManagerFlightRepository;
 import acme.realms.Customer;
 
 @GuiService
@@ -24,10 +23,10 @@ public class CustomerBookingsCreateService extends AbstractGuiService<Customer, 
 	// Internal state ---------------------------------------------------------
 
 	@Autowired
-	private CustomerBookingsRepository		repository;
+	private CustomerBookingsRepository repository;
 
-	@Autowired
-	private AirlineManagerFlightRepository	flightRepository;
+	//	@Autowired
+	//	private LegRepository				legRepository;
 
 	// AbstractService interface ----------------------------------------------
 
@@ -59,28 +58,28 @@ public class CustomerBookingsCreateService extends AbstractGuiService<Customer, 
 
 	@Override
 	public void bind(final Booking booking) {
-		Flight flight;
-		int flightId;
+		//		Flight flight;
+		//		int flightId;
+		//
+		//		flightId = super.getRequest().getData("flight", int.class);
+		//		flight = this.flightRepository.findFlightById(flightId);
 
-		flightId = super.getRequest().getData("flight", int.class);
-		flight = this.flightRepository.findFlightById(flightId);
-
-		super.bindObject(booking, "locatorCode", "purchaseMoment", "price", "travelClass", "lastNibble");
-		booking.setFlight(flight);
+		super.bindObject(booking, "flight", "locatorCode", "purchaseMoment", "price", "travelClass", "lastNibble");
+		//		booking.setFlight(flight);
 
 	}
 
 	@Override
 	public void validate(final Booking booking) {
-		Booking b = this.repository.findBookingByLocatorCode(booking.getLocatorCode());
-		if (b != null)
-			super.state(false, "locatorCode", "acme.validation.confirmation.message.booking.locator-code");
+		Collection<Booking> bookings = this.repository.findAllBookingByLocatorCode(booking.getLocatorCode());
+		boolean status = bookings.isEmpty();
+		super.state(status, "locatorCode", "acme.validation.confirmation.message.booking.locator-code");
 	}
 
 	@Override
 	public void perform(final Booking booking) {
-		Date today = MomentHelper.getCurrentMoment();
-		booking.setPurchaseMoment(today);
+		//		Date today = MomentHelper.getCurrentMoment();
+		//		booking.setPurchaseMoment(today);
 		this.repository.save(booking);
 	}
 
@@ -91,8 +90,11 @@ public class CustomerBookingsCreateService extends AbstractGuiService<Customer, 
 		SelectChoices flightChoices;
 
 		Date today = MomentHelper.getCurrentMoment();
-		Collection<Flight> flights = this.flightRepository.findAllFlights().stream().filter(f -> f.getDraftMode() == false).toList();
-		flightChoices = SelectChoices.from(flights, "tag", booking.getFlight());
+
+		// Usamos directamente el método del repositorio que ya filtra vuelos publicados con al menos un Leg futuro
+		Collection<Flight> flightsInFuture = this.repository.findAllPublishedFlightsWithFutureDeparture(today);
+
+		flightChoices = SelectChoices.from(flightsInFuture, "tag", booking.getFlight());
 		choices = SelectChoices.from(TravelClass.class, booking.getTravelClass());
 
 		Collection<Passenger> passengerN = this.repository.findPassengersByBookingId(booking.getId());
@@ -100,36 +102,11 @@ public class CustomerBookingsCreateService extends AbstractGuiService<Customer, 
 
 		dataset = super.unbindObject(booking, "locatorCode", "purchaseMoment", "price", "draftMode", "lastNibble");
 		dataset.put("travelClass", choices);
+		dataset.put("passengers", passengers);
 		dataset.put("flight", flightChoices.getSelected().getKey());
 		dataset.put("flights", flightChoices);
-		dataset.put("passengers", passengers);
-		System.out.println(flightChoices);
 
 		super.getResponse().addData(dataset);
 	}
-
-	//	@Override
-	//	public void unbind(final Booking booking) {
-	//		Dataset dataset;
-	//		SelectChoices choices;
-	//		SelectChoices flightChoices;
-	//
-	//		Date today = MomentHelper.getCurrentMoment();
-	//		Collection<Flight> flights = this.repository.findAllPublishedFlightsWithFutureDeparture(today);
-	//		flightChoices = SelectChoices.from(flights, "Destination", booking.getFlight());
-	//		choices = SelectChoices.from(TravelClass.class, booking.getTravelClass());
-	//
-	//		//		Collection<Passenger> passengerN = this.repository.findPassengersByBookingId(booking.getId());
-	//		Collection<String> passengers = this.repository.findPassengersNameByBooking(booking.getId());
-	//
-	//		dataset = super.unbindObject(booking, "locatorCode", "purchaseMoment", "price", "draftMode", "lastNibble");
-	//		dataset.put("travelClass", choices);
-	//		dataset.put("flight", flightChoices.getSelected().getKey());
-	//		dataset.put("flights", flightChoices);
-	//		dataset.put("passengers", passengers);
-	//		System.out.println(flightChoices);
-	//
-	//		super.getResponse().addData(dataset);
-	//	}
 
 }

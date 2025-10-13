@@ -2,13 +2,11 @@
 package acme.features.customer.booking;
 
 import java.util.Collection;
-import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import acme.client.components.models.Dataset;
 import acme.client.components.views.SelectChoices;
-import acme.client.helpers.MomentHelper;
 import acme.client.services.AbstractGuiService;
 import acme.client.services.GuiService;
 import acme.entities.booking.Booking;
@@ -86,7 +84,7 @@ public class CustomerBookingsDeleteService extends AbstractGuiService<Customer, 
 		SelectChoices choices;
 		SelectChoices flightChoices;
 
-		Date today = MomentHelper.getCurrentMoment();
+		//		Date today = MomentHelper.getCurrentMoment();
 		Collection<Flight> flights = this.flightRepository.findAllFlights().stream().filter(f -> f.getDraftMode() == false).toList();
 		flightChoices = SelectChoices.from(flights, "tag", booking.getFlight());
 		choices = SelectChoices.from(TravelClass.class, booking.getTravelClass());

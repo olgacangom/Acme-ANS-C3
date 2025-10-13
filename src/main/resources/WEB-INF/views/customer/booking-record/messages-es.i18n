@@ -13,6 +13,8 @@ customer.booking-record.form.title = Datos de registro de reserva
 
 customer.booking-record.list.label.passenger = Pasajero
 customer.booking-record.list.label.booking = Reserva
+customer.booking-record.form.label.passenger = Pasajero
+customer.booking-record.form.label.booking = Reserva
 
 customer.booking-record.form.button.delete = Eliminar Registro de Reserva
 customer.booking-record.form.button.create = Crear un Registro de reserva
@@ -21,3 +23,5 @@ customer.booking-record.form.button.create = Crear un Registro de reserva
 acme.validation.confirmation.message.booking-record.create = Esa relacion ya está creada
 acme.validation.confirmation.message.booking-record.create.booking = La reserva no puede ser nula
 acme.validation.confirmation.message.booking-record.create.passenger = El pasajero no puede ser nulo
+
+acme.validation.booking-record.booking-not-draft = No se puede seleccionar un booking ya publicado.
