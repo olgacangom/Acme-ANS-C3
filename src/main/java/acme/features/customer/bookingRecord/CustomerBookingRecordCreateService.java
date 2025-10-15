@@ -12,6 +12,8 @@ import acme.client.services.GuiService;
 import acme.entities.booking.Booking;
 import acme.entities.booking.BookingRecord;
 import acme.entities.passenger.Passenger;
+import acme.features.customer.booking.CustomerBookingsRepository;
+import acme.features.customer.passenger.CustomerPassengerRepository;
 import acme.realms.Customer;
 
 @GuiService
@@ -20,7 +22,13 @@ public class CustomerBookingRecordCreateService extends AbstractGuiService<Custo
 	// Internal state ---------------------------------------------------------
 
 	@Autowired
-	private CustomerBookingRecordRepository repository;
+	private CustomerBookingRecordRepository	repository;
+
+	@Autowired
+	private CustomerBookingsRepository		bookingRepository;
+
+	@Autowired
+	private CustomerPassengerRepository		passengerRepository;
 
 	// AbstractGuiService interface -------------------------------------------
 
@@ -28,7 +36,28 @@ public class CustomerBookingRecordCreateService extends AbstractGuiService<Custo
 	@Override
 	public void authorise() {
 		boolean isCustomer = super.getRequest().getPrincipal().hasRealmOfType(Customer.class);
-		super.getResponse().setAuthorised(isCustomer);
+		boolean authorised = isCustomer;
+		try {
+			if (super.getRequest().hasData("booking")) {
+				int bookingId = super.getRequest().getData("booking", int.class);
+				int passengerId = super.getRequest().getData("passenger", int.class);
+				if (bookingId != 0 || passengerId != 0) {
+					Booking booking = this.bookingRepository.findBookingById(bookingId);
+					Passenger passenger = this.passengerRepository.findPassengerById(passengerId);
+					int customerId = super.getRequest().getPrincipal().getActiveRealm().getId();
+					boolean belongsToCustomer = booking != null && booking.getCustomer().getId() == customerId;
+					boolean isPassenger = passenger != null && passenger.getCustomer().getId() == customerId;
+					boolean isDraft = booking != null && booking.isDraftMode();
+
+					authorised = isCustomer && belongsToCustomer && isDraft && isPassenger;
+				}
+
+			}
+		} catch (Throwable e) {
+			authorised = false;
+		}
+
+		super.getResponse().setAuthorised(authorised);
 	}
 
 	@Override
@@ -44,7 +73,6 @@ public class CustomerBookingRecordCreateService extends AbstractGuiService<Custo
 
 	@Override
 	public void validate(final BookingRecord bookingRecord) {
-		Passenger passenger = bookingRecord.getPassenger();
 		Booking booking = bookingRecord.getBooking();
 
 		// Validación: el booking debe estar en modo borrador
@@ -52,11 +80,11 @@ public class CustomerBookingRecordCreateService extends AbstractGuiService<Custo
 			super.state(booking.isDraftMode(), "booking", "acme.validation.booking-record.booking-not-draft");
 
 		//No permitir duplicados
-		BookingRecord bookingRecordCompare = null;
-		if (passenger != null && booking != null)
-			bookingRecordCompare = this.repository.findBookingRecordBybookingIdPassengerId(passenger.getId(), booking.getId());
-		boolean status1 = bookingRecordCompare == null || bookingRecordCompare.getId() == bookingRecord.getId();
-		super.state(status1, "*", "acme.validation.confirmation.message.booking-record.create");
+		if (bookingRecord.getPassenger() != null) {
+			BookingRecord br = this.repository.findBookingRecordBybookingIdPassengerId(bookingRecord.getBooking().getId(), bookingRecord.getPassenger().getId());
+			if (br != null)
+				super.state(false, "*", "acme.validation.confirmation.message.booking-record.create");
+		}
 	}
 
 	@Override

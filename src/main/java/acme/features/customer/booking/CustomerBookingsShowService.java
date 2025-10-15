@@ -14,7 +14,6 @@ import acme.client.services.GuiService;
 import acme.entities.booking.Booking;
 import acme.entities.booking.TravelClass;
 import acme.entities.flight.Flight;
-import acme.entities.passenger.Passenger;
 import acme.realms.Customer;
 
 @GuiService
@@ -33,12 +32,19 @@ public class CustomerBookingsShowService extends AbstractGuiService<Customer, Bo
 
 	@Override
 	public void authorise() {
-		int customerId = super.getRequest().getPrincipal().getActiveRealm().getUserAccount().getId();
-		int bookingId = super.getRequest().getData("id", int.class);
-		Booking booking = this.repository.findBookingById(bookingId);
+		boolean status;
+		int customerId;
+		int bookingId;
+		Booking booking;
 
-		boolean status = booking.getCustomer().getUserAccount().getId() == customerId && super.getRequest().getPrincipal().hasRealmOfType(Customer.class);
+		customerId = super.getRequest().getPrincipal().getActiveRealm().getUserAccount().getId();
+		bookingId = super.getRequest().getData("id", int.class);
+		booking = this.repository.findBookingById(bookingId);
+
+		status = booking != null && booking.getCustomer().getUserAccount().getId() == customerId && super.getRequest().getPrincipal().hasRealmOfType(Customer.class);
+
 		super.getResponse().setAuthorised(status);
+
 	}
 
 	@Override
@@ -58,15 +64,10 @@ public class CustomerBookingsShowService extends AbstractGuiService<Customer, Bo
 		SelectChoices flightChoices;
 
 		Date today = MomentHelper.getCurrentMoment();
-
-		// Usamos directamente el método del repositorio que ya filtra vuelos publicados con al menos un Leg futuro
 		Collection<Flight> flightsInFuture = this.repository.findAllPublishedFlightsWithFutureDeparture(today);
-
 		flightChoices = SelectChoices.from(flightsInFuture, "tag", booking.getFlight());
 		choices = SelectChoices.from(TravelClass.class, booking.getTravelClass());
-
-		Collection<Passenger> passengerN = this.repository.findPassengersByBookingId(booking.getId());
-		Collection<String> passengers = passengerN.stream().map(p -> p.getFullName()).toList();
+		Collection<String> passengers = this.repository.findPassengersNameByBooking(booking.getId());
 
 		dataset = super.unbindObject(booking, "locatorCode", "purchaseMoment", "price", "draftMode", "lastNibble");
 		dataset.put("travelClass", choices);

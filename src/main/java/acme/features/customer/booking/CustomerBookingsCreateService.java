@@ -12,9 +12,9 @@ import acme.client.helpers.MomentHelper;
 import acme.client.services.AbstractGuiService;
 import acme.client.services.GuiService;
 import acme.entities.booking.Booking;
+import acme.entities.booking.FlightRepository;
 import acme.entities.booking.TravelClass;
 import acme.entities.flight.Flight;
-import acme.entities.passenger.Passenger;
 import acme.realms.Customer;
 
 @GuiService
@@ -23,19 +23,43 @@ public class CustomerBookingsCreateService extends AbstractGuiService<Customer, 
 	// Internal state ---------------------------------------------------------
 
 	@Autowired
-	private CustomerBookingsRepository repository;
+	private CustomerBookingsRepository	repository;
 
 	//	@Autowired
 	//	private LegRepository				legRepository;
 
+	@Autowired
+	private FlightRepository			flightRepository;
 	// AbstractService interface ----------------------------------------------
 
 
 	@Override
 	public void authorise() {
-		boolean status;
-		status = super.getRequest().getPrincipal().hasRealmOfType(Customer.class);
-		super.getResponse().setAuthorised(status);
+
+		if (super.getRequest().hasData("id")) {
+			Integer id = super.getRequest().getData("id", Integer.class, 0);
+			if (id != 0) {
+				super.getResponse().setAuthorised(false);
+				return;
+			}
+		}
+
+		Object flightData = super.getRequest().getData().get("flight");
+		if (flightData == null || "0".equals(flightData.toString().trim())) {
+			super.getResponse().setAuthorised(true);
+			return;
+		}
+
+		String flightKey = flightData.toString().trim();
+		if (flightKey.matches("\\d+")) {
+			int flightId = Integer.parseInt(flightKey);
+			Flight flight = this.flightRepository.findFlightById(flightId);
+			boolean flightValid = flight != null && !flight.getDraftMode();
+			super.getResponse().setAuthorised(flightValid);
+			return;
+		}
+
+		super.getResponse().setAuthorised(false);
 	}
 
 	@Override
@@ -90,15 +114,10 @@ public class CustomerBookingsCreateService extends AbstractGuiService<Customer, 
 		SelectChoices flightChoices;
 
 		Date today = MomentHelper.getCurrentMoment();
-
-		// Usamos directamente el método del repositorio que ya filtra vuelos publicados con al menos un Leg futuro
 		Collection<Flight> flightsInFuture = this.repository.findAllPublishedFlightsWithFutureDeparture(today);
-
 		flightChoices = SelectChoices.from(flightsInFuture, "tag", booking.getFlight());
 		choices = SelectChoices.from(TravelClass.class, booking.getTravelClass());
-
-		Collection<Passenger> passengerN = this.repository.findPassengersByBookingId(booking.getId());
-		Collection<String> passengers = passengerN.stream().map(p -> p.getFullName()).toList();
+		Collection<String> passengers = this.repository.findPassengersNameByBooking(booking.getId());
 
 		dataset = super.unbindObject(booking, "locatorCode", "purchaseMoment", "price", "draftMode", "lastNibble");
 		dataset.put("travelClass", choices);
@@ -108,5 +127,4 @@ public class CustomerBookingsCreateService extends AbstractGuiService<Customer, 
 
 		super.getResponse().addData(dataset);
 	}
-
 }

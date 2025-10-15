@@ -66,4 +66,5 @@ public interface CustomerBookingsRepository extends AbstractRepository {
 
 	@Query("select f from Flight f where f.draftMode = false")
 	Collection<Flight> findAllPublishedFlights();
+
 }
