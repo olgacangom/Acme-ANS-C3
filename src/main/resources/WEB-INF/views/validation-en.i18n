@@ -29,3 +29,4 @@ acme.validation.confirmation.message.passenger-required = You can not publish a 
 acme.validation.passport = Must contain between 6 and 15 digits, with no spaces or special characters.
 
 acme.validation.confirmation.message.passenger.notPublished = All passengers must be published
+customer.booking.form.error.records-exist = This booking cannot be deleted because it has associated records.

@@ -29,7 +29,7 @@ public class CustomerPassengerPublishService extends AbstractGuiService<Customer
 		id = super.getRequest().getData("id", int.class);
 		passenger = this.repository.findPassengerById(id);
 		boolean status = passenger.getCustomer().getUserAccount().getId() == customerId && super.getRequest().getPrincipal().hasRealmOfType(Customer.class);
-		super.getResponse().setAuthorised(status);
+		super.getResponse().setAuthorised(status && passenger.isDraftMode());
 	}
 
 	@Override

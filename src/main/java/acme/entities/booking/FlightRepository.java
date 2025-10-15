@@ -12,6 +12,8 @@
 
 package acme.entities.booking;
 
+import java.util.Collection;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -28,5 +30,8 @@ public interface FlightRepository extends AbstractRepository {
 
 	@Query("select f from Flight f where f.id = :flightId")
 	Flight findFlightById(@Param("flightId") Integer flightId);
+
+	@Query("select f from Flight f")
+	Collection<Flight> findAllFlights();
 
 }

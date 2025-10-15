@@ -29,3 +29,5 @@ acme.validation.last-nibble = El número debe contener exactamente los 4 último
 acme.validation.passport  = Debe tener entre 6 y 15 cifras sin espacios ni símbolos.
 
 acme.validation.confirmation.message.passenger.notPublished = Todos los pasajeros deben estar publicados
+
+customer.booking.form.error.records-exist=No se puede eliminar la reserva porque tiene registros asociados.

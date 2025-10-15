@@ -3,11 +3,12 @@ package acme.features.customer.bookingRecord;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import acme.client.components.models.Dataset;
 import acme.client.services.AbstractGuiService;
 import acme.client.services.GuiService;
 import acme.entities.booking.Booking;
 import acme.entities.booking.BookingRecord;
-import acme.features.customer.booking.CustomerBookingsRepository;
+import acme.entities.passenger.Passenger;
 import acme.realms.Customer;
 
 @GuiService
@@ -16,51 +17,48 @@ public class CustomerBookingRecordDeleteService extends AbstractGuiService<Custo
 	// Internal state ---------------------------------------------------------
 
 	@Autowired
-	private CustomerBookingRecordRepository	repository;
-
-	@Autowired
-	private CustomerBookingsRepository		bookingRepository;
+	private CustomerBookingRecordRepository repository;
 
 	// AbstractGuiService interface -------------------------------------------
 
 
 	@Override
 	public void authorise() {
-		boolean status;
-		Booking booking;
-		int bookingRecordId;
-		BookingRecord bookingRecord;
-		bookingRecordId = super.getRequest().getData("id", int.class);
-		bookingRecord = this.repository.findBookingRecordById(bookingRecordId);
+		boolean authorised = false;
 
-		if (bookingRecord == null)
-			status = false;
-		else {
-			booking = this.bookingRepository.findBookingById(bookingRecord.getBooking().getId());
-			status = booking.isDraftMode() && super.getRequest().getPrincipal().hasRealm(booking.getCustomer()) && !super.getRequest().getMethod().equals("GET");
+		if (super.getRequest().hasData("id")) {
+			int bookingRecordId = super.getRequest().getData("id", int.class);
+			BookingRecord bookingRecord = this.repository.findBookingRecordById(bookingRecordId);
+
+			if (bookingRecord != null) {
+				Booking booking = bookingRecord.getBooking();
+				int customerAccountId = super.getRequest().getPrincipal().getActiveRealm().getUserAccount().getId();
+				boolean isCustomer = super.getRequest().getPrincipal().hasRealmOfType(Customer.class);
+				boolean isOwner = booking.getCustomer().getUserAccount().getId() == customerAccountId;
+				boolean isDraft = booking.isDraftMode();
+
+				authorised = isCustomer && isOwner && isDraft;
+			}
 		}
 
-		super.getResponse().setAuthorised(status);
+		super.getResponse().setAuthorised(authorised);
 	}
 
 	@Override
 	public void load() {
 		int bookingRecordId = super.getRequest().getData("id", int.class);
-
 		BookingRecord bookingRecord = this.repository.findBookingRecordById(bookingRecordId);
-
 		super.getBuffer().addData(bookingRecord);
 	}
 
 	@Override
 	public void bind(final BookingRecord bookingRecord) {
-		//		super.bindObject(bookingRecord, "passenger");
+		super.bindObject(bookingRecord);
 	}
 
 	@Override
 	public void validate(final BookingRecord bookingRecord) {
-		//		if (!bookingRecord.getBooking().isDraftMode())
-		//			super.state(false, "booking", "customer.booking-record.form.error-not-draft");
+
 	}
 
 	@Override
@@ -70,7 +68,20 @@ public class CustomerBookingRecordDeleteService extends AbstractGuiService<Custo
 
 	@Override
 	public void unbind(final BookingRecord bookingRecord) {
+		Dataset dataset;
 
+		Booking boog = this.repository.findOneBookingByBookingRecord(bookingRecord.getId());
+
+		Passenger passenger = bookingRecord.getPassenger();
+
+		dataset = super.unbindObject(bookingRecord);
+
+		dataset.put("bookingLocator", boog.getLocatorCode());
+		dataset.put("passengerName", passenger.getFullName());
+
+		dataset.put("draftMode", bookingRecord.getBooking().isDraftMode());
+		super.addPayload(dataset, bookingRecord);
+
+		super.getResponse().addData(dataset);
 	}
-
 }

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import acme.client.components.models.Dataset;
 import acme.client.services.AbstractGuiService;
 import acme.client.services.GuiService;
-import acme.entities.booking.Booking;
 import acme.entities.passenger.Passenger;
 import acme.realms.Customer;
 
@@ -25,32 +24,18 @@ public class CustomerPassengerListService extends AbstractGuiService<Customer, P
 
 	@Override
 	public void authorise() {
-		boolean isCustomer = false;
-		int customerId = super.getRequest().getPrincipal().getActiveRealm().getId();
-
-		if (super.getRequest().getData().containsKey("bookingId")) {
-			int bookingId = super.getRequest().getData("bookingId", int.class);
-			Booking booking = this.repository.getBookingById(bookingId);
-
-			isCustomer = booking != null && booking.getCustomer().getId() == customerId;
-		} else
-			isCustomer = super.getRequest().getPrincipal().hasRealmOfType(Customer.class);
-
+		//		int customerId = super.getRequest().getPrincipal().getActiveRealm().getId();
+		//		Collection<Passenger> passengers = this.repository.findPassengersByCustomerId(customerId);
+		//		boolean status = passengers.stream().allMatch(b -> b.getCustomer().getId() == customerId) && super.getRequest().getPrincipal().hasRealmOfType(Customer.class);
+		//		super.getResponse().setAuthorised(status);
+		boolean isCustomer = super.getRequest().getPrincipal().hasRealmOfType(Customer.class);
 		super.getResponse().setAuthorised(isCustomer);
 	}
 
 	@Override
 	public void load() {
 		int customerId = super.getRequest().getPrincipal().getActiveRealm().getId();
-		Collection<Passenger> passengers;
-
-		if (!super.getRequest().getData().containsKey("bookingId"))
-			passengers = this.repository.findPassengersByCustomerId(customerId);
-		else {
-			Integer bookingId = super.getRequest().getData("bookingId", int.class);
-			passengers = this.repository.findPassengerByBookingId(bookingId);
-		}
-
+		Collection<Passenger> passengers = this.repository.findPassengersByCustomerId(customerId);
 		super.getBuffer().addData(passengers);
 	}
 

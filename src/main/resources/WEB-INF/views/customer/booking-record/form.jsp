@@ -22,6 +22,7 @@
 			<acme:input-textbox code="customer.booking-record.form.label.booking" path="bookingLocator" readonly="true"/>
     		<acme:input-textbox code="customer.booking-record.form.label.passenger" path="passengerName" readonly="true"/>
 			<acme:submit code="customer.booking-record.form.button.delete" action="/customer/booking-record/delete"/>
+			
 		</jstl:when>
         	
 			<jstl:when test="${_command == 'create'}" >
