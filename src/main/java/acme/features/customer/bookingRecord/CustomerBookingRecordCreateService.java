@@ -55,7 +55,7 @@ public class CustomerBookingRecordCreateService extends AbstractGuiService<Custo
 			}
 		} catch (Throwable e) {
 			authorised = false;
-		}
+		} 
 
 		super.getResponse().setAuthorised(authorised);
 	}
